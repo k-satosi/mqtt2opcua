@@ -1,0 +1,15 @@
+{
+  "mqtt": {
+    "host": "localhost",
+    "port": 1883
+  },
+  "opcua": {
+    "endpoint": "opc.tcp://localhost:4840"
+  },
+  "topics": [
+    {
+      "topic": "test",
+      "nodeid": "ns=2;s=MyVariable"
+    }
+  ]
+}
