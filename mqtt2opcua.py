@@ -15,7 +15,7 @@ async def write_to_opcua(nodeid, value):
   _logger.debug(f"Writing to {nodeid}")
   global opc_server
   var = opc_server.get_node(nodeid)
-  await var.write_value(float(value))
+  await var.write_value(value)
 
 def mqtt_on_connect(client, userdata, flags, rc):
   _logger.info("MQTT Connected")
@@ -25,8 +25,19 @@ def mqtt_on_message(client, userdata, msg):
 
   for topic in settings["topics"]:
     if topic["topic"] == msg.topic:
+      val = msg.payload.decode()
+      if not "type" in topic:
+        val = float(val)
+      elif topic["type"] == "Boolean":
+        val =  True if val == "True" else False
+      elif topic["type"] == "Double":
+        val = float(val)
+      elif topic["type"] == "String":
+        val = str(val)
+      else:
+        val = float(val)
       loop = asyncio.new_event_loop()
-      loop.run_until_complete(write_to_opcua(topic["nodeid"], msg.payload.decode()))
+      loop.run_until_complete(write_to_opcua(topic["nodeid"], val))
 
 def load_setting(path):
   with open(path) as f:
@@ -62,10 +73,19 @@ async def run_opcua_server():
   myobj = await objects.add_object(idx, "Object")
   for t in settings["topics"]:
     nodeid = ua.NodeId.from_string(t["nodeid"])
-    myvar = await myobj.add_variable(nodeid, nodeid.Identifier, 0.0)
-    _logger.info(await myvar.read_browse_name())
+    myvar = {}
+    if not "type" in t:
+      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, 0.0)
+    elif t["type"] == "Double":
+      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, 0.0)
+    elif t["type"] == "Boolean":
+      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, False)
+    elif t["type"] == "String":
+      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, "")
+    else:
+      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, 0.0)
     await myvar.set_writable()
-    await myvar.write_value(0.0)
+    _logger.info(await myvar.read_browse_name())
 
   async with opc_server:
     while True:
