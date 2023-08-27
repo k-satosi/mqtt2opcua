@@ -47,6 +47,11 @@ class M2OTest(unittest.IsolatedAsyncioTestCase):
           "topic": "testString",
           "nodeid": "ns=2;s=StringVar",
           "type": "String"
+        },
+        {
+          "topic": "testInt32",
+          "nodeid": "ns=2;i=100",
+          "type": "Int32"
         }
       ]
     }

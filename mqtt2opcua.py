@@ -11,6 +11,13 @@ opc_server = {}
 opc_client = {}
 settings = {}
 
+type_list = {
+  "Int32": { "uatype": ua.VariantType.Int32, "default": 0 },
+  "Double": { "uatype": ua.VariantType.Double, "default": 0.0 },
+  "Boolean": { "uatype": ua.VariantType.Boolean, "default": False},
+  "String": { "uatype": ua.VariantType.String, "default": ""}
+}
+
 async def write_to_opcua(nodeid, value):
   _logger.debug(f"Writing to {nodeid}")
   global opc_server
@@ -30,6 +37,8 @@ def mqtt_on_message(client, userdata, msg):
         val = float(val)
       elif topic["type"] == "Boolean":
         val =  True if val == "True" else False
+      elif topic["type"] == "Int32":
+        val = int(val)
       elif topic["type"] == "Double":
         val = float(val)
       elif topic["type"] == "String":
@@ -76,14 +85,10 @@ async def run_opcua_server():
     myvar = {}
     if not "type" in t:
       myvar = await myobj.add_variable(nodeid, nodeid.Identifier, 0.0)
-    elif t["type"] == "Double":
-      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, 0.0)
-    elif t["type"] == "Boolean":
-      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, False)
-    elif t["type"] == "String":
-      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, "")
     else:
-      myvar = await myobj.add_variable(nodeid, nodeid.Identifier, 0.0)
+      ty = t["type"]
+      vtype = type_list[ty]
+      myvar = await myobj.add_variable(nodeid, t["topic"], vtype["default"], vtype["uatype"])
     await myvar.set_writable()
     _logger.info(await myvar.read_browse_name())
 
