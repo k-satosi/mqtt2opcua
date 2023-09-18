@@ -65,6 +65,7 @@ class M2OTest(unittest.IsolatedAsyncioTestCase):
 
     async def publish_and_read(topic, expected):
       await publish_mqtt(host, port, topic["topic"], expected)
+      await asyncio.sleep(0.5)
       actual = await read_opcua_node(endpoint, topic["nodeid"])
       self.assertEqual(actual, expected)
 
