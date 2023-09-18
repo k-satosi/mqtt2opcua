@@ -4,6 +4,8 @@ services:
     image: eclipse-mosquitto
     expose:
       - 1883
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
   test:
     build: .
     expose:
