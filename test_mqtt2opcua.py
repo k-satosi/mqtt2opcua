@@ -61,7 +61,8 @@ class M2OTest(unittest.IsolatedAsyncioTestCase):
     host = settings["mqtt"]["host"]
     port = settings["mqtt"]["port"]
     endpoint = settings["opcua"]["endpoint"]
-    task1 = asyncio.create_task(m2o.run("test.json"))
+    bridge = m2o.MQTT2OPCUA("test.json")
+    task1 = asyncio.create_task(bridge.run())
 
     async def publish_and_read(topic, expected):
       await publish_mqtt(host, port, topic["topic"], expected)
