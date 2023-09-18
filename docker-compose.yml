@@ -1,0 +1,14 @@
+version: "3"
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    expose:
+      - 1883
+  test:
+    build: .
+    expose:
+      - 4840
+    volumes:
+      - .:/work
+    depends_on:
+      - mosquitto

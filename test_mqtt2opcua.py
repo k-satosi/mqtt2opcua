@@ -22,11 +22,11 @@ class M2OTest(unittest.IsolatedAsyncioTestCase):
   async def test_normal(self):
     settings = {
       "mqtt": {
-        "host": "localhost",
+        "host": "mosquitto",
         "port": 1883
       },
       "opcua": {
-        "endpoint": "opc.tcp://localhost:4840"
+        "endpoint": "opc.tcp://0.0.0.0:4840"
       },
       "topics": [
         {
